@@ -1,0 +1,108 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Vehicle {
+  id        String   @id @default(cuid())
+  number    String   @unique
+  name      String?
+  type      String?
+  notes     String?
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  trips     Trip[]
+}
+
+model Driver {
+  id        String   @id @default(cuid())
+  name      String
+  mobile    String?  @unique
+  notes     String?
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  trips     Trip[]
+}
+
+model ExpenseType {
+  id        String        @id @default(cuid())
+  name      String
+  /// Lower-cased name, enforces case-insensitive uniqueness.
+  nameKey   String        @unique
+  isActive  Boolean       @default(true)
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+  expenses  TripExpense[]
+}
+
+/// One row per MPIN. The PIN itself is only ever stored as an argon2 hash.
+model User {
+  id          String    @id @default(cuid())
+  name        String
+  pinHash     String
+  isActive    Boolean   @default(true)
+  lastLoginAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  sessions    Session[]
+}
+
+model Session {
+  id         String   @id
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt  DateTime @default(now())
+  expiresAt  DateTime
+  lastSeenAt DateTime @default(now())
+
+  @@index([userId])
+}
+
+/// Wrong-PIN counter per device, for the 5 tries / 5 minute cool-down.
+model LoginThrottle {
+  key         String    @id
+  failures    Int       @default(0)
+  lockedUntil DateTime?
+  updatedAt   DateTime  @updatedAt
+}
+
+model Trip {
+  id                String        @id @default(cuid())
+  tripDate          DateTime      @db.Date
+  name              String
+  vehicleId         String
+  vehicle           Vehicle       @relation(fields: [vehicleId], references: [id])
+  driverId          String
+  driver            Driver        @relation(fields: [driverId], references: [id])
+  amountEarnedPaise Int
+  isCredit          Boolean       @default(false)
+  creditPaidOn      DateTime?     @db.Date
+  isDeleted         Boolean       @default(false)
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+  expenses          TripExpense[]
+
+  @@index([tripDate])
+  @@index([vehicleId])
+  @@index([driverId])
+  @@index([isCredit, creditPaidOn])
+}
+
+model TripExpense {
+  id            String      @id @default(cuid())
+  tripId        String
+  trip          Trip        @relation(fields: [tripId], references: [id], onDelete: Cascade)
+  expenseTypeId String
+  expenseType   ExpenseType @relation(fields: [expenseTypeId], references: [id])
+  amountPaise   Int
+  note          String?
+
+  @@index([tripId])
+  @@index([expenseTypeId])
+}

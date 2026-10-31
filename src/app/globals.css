@@ -1,0 +1,83 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: var(--font-plex), system-ui, sans-serif;
+  --color-ground: #f4f5f2;
+  --color-surface: #ffffff;
+  --color-ink: #17201c;
+  --color-muted: #55605b;
+  --color-line: #dde1dc;
+  --color-line-soft: #ebeeea;
+  --color-field: #b9c0bb;
+  --color-brand: #1d4e89;
+  --color-brand-dark: #163b68;
+  --color-brand-soft: #e6eef8;
+  --color-credit: #8a4500;
+  --color-credit-soft: #fff4e5;
+  --color-credit-line: #f1d3a8;
+  --color-good: #1e6b3a;
+  --color-good-soft: #e7f3eb;
+  --color-bad: #b42318;
+  --color-bad-soft: #fdecea;
+}
+
+:root {
+  color-scheme: light;
+}
+
+body {
+  background: var(--color-ground);
+  color: var(--color-ink);
+  -webkit-tap-highlight-color: transparent;
+}
+
+@utility card {
+  @apply rounded-xl border border-line bg-surface;
+}
+@utility field {
+  @apply h-12 w-full rounded-lg border border-field bg-surface px-3 text-base text-ink outline-none focus:border-brand focus:ring-2 focus:ring-brand/25 disabled:bg-ground;
+}
+@utility label {
+  @apply flex flex-col gap-1.5 text-sm font-medium;
+}
+@utility btn {
+  @apply inline-flex min-h-11 items-center justify-center gap-2 rounded-lg text-sm font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand disabled:opacity-50;
+}
+@utility btn-primary {
+  @apply btn px-4 bg-brand text-white hover:bg-brand-dark;
+}
+@utility btn-secondary {
+  @apply btn px-4 border border-field bg-surface text-ink hover:bg-ground;
+}
+@utility btn-ghost {
+  @apply btn px-2 text-brand hover:bg-brand-soft;
+}
+@utility btn-danger {
+  @apply btn px-4 border border-field bg-surface text-bad hover:bg-bad-soft;
+}
+@utility chip {
+  @apply inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold;
+}
+@utility num {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Native <details> used for the balance cascade: hide the default marker. */
+summary {
+  list-style: none;
+}
+summary::-webkit-details-marker {
+  display: none;
+}
+details[open] > summary .chevron {
+  transform: rotate(90deg);
+}
+
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  body {
+    background: #fff;
+  }
+}
