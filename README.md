@@ -52,3 +52,10 @@ If every PIN is ever forgotten, reset one in the database (there is no in-app re
 - **Masters** are never deleted, only deactivated; inactive items are hidden from Add Trip but stay on old trips and in reports.
 - **Trips** are soft-deleted.
 - **MPIN:** exactly 6 digits, stored as an argon2 hash. 5 wrong tries on a device cause a 5-minute wait. Sessions last 30 days and require the PIN again after 15 minutes idle. The last active PIN cannot be deactivated, and deactivating a PIN signs it out everywhere.
+
+## Deploying (Vercel + Neon)
+
+1. Create a Neon Postgres project (region: Asia Pacific, Singapore). Copy two connection strings: the **pooled** one and the **direct** one (pooling off).
+2. In Vercel, import this GitHub repo. Add environment variables `DATABASE_URL` (pooled) and `DIRECT_URL` (direct), then deploy. The `vercel-build` script applies migrations automatically.
+3. Create the first PIN once, from your computer, against the online database:
+   `DATABASE_URL="<pooled>" DIRECT_URL="<direct>" SEED_OWNER_PIN="<your 6 digits>" SEED_SAMPLE_DATA=0 npm run db:seed`
